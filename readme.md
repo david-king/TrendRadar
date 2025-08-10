@@ -26,6 +26,51 @@
 >
 > **Fork** 的同时，如果觉得有帮助，请顺手点个 ⭐️ **Star**，感谢支持
 
+<details>
+<summary><strong>👉 点击查看致谢名单</strong></summary>
+<br>
+
+### 数据支持
+
+本项目使用了 [newsnow](https://github.com/ourongxing/newsnow) 项目提供的 API 接口获取多平台数据
+
+### 推广助力
+
+> 感谢以下平台和个人的推荐，让更多用户发现这个工具
+
+- [小众软件](https://mp.weixin.qq.com/s/fvutkJ_NPUelSW9OGK39aA) - 软件推荐平台的精准用户推送
+- [阮一峰周刊](https://github.com/ruanyf/weekly) - 技术圈影响力周刊的收录推荐
+- [LinuxDo 社区](https://linux.do/) - 技术爱好者的试用与反馈
+- 各微信群、QQ群 - 用户间的分享和传播
+
+### 观众支持
+
+> 感谢以下热心观众的信任与支持
+
+|           点赞人            |  金额  |  日期  |             备注             |
+| :-------------------------: | :----: | :----: | :-----------------------: |
+|           S*o            |  1  | 2025.8.05 |   支持一下        |
+|           *侠            |  10  | 2025.8.04 |           |
+|           x*x            |  2  | 2025.8.03 |  trendRadar 好项目 点赞          |
+|           *远            |  1  | 2025.8.01 |            |
+|           *邪            |  5  | 2025.8.01 |            |
+|           *梦            |  0.1  | 2025.7.30 |            |
+|           **龙            |  10  | 2025.7.29 |      支持一下      |
+
+<details>
+<summary><strong>👉 "手机推送通知系列" 挖坑</strong></summary>
+<br>
+
+截图中只支持一个渠道，大家有什么好的建议和想法可以公众号留言，完善好后开源
+
+<img src="_image/next.jpg" width="300" title="github"/>
+
+</details>
+
+
+</details>
+
+
 ## ✨ 核心功能
 
 ### **全网热点聚合**
@@ -82,7 +127,7 @@ GitHub 一键 Fork 即可使用，无需编程基础。
 | ![Github Pages效果](_image/github-pages.png) | ![飞书推送效果](_image/feishu.jpg) |
 
 <details>
-<summary><strong>👉 点击查看推送格式说明</strong></summary>
+<summary><strong>👉 推送格式说明</strong></summary>
 
 ## 📊 输出示例
 
@@ -638,18 +683,6 @@ platforms:
 
 </div>
 
-感谢以下热心观众的点赞
-
-|           点赞人            |  金额  |  日期  |             备注             |
-| :-------------------------: | :----: | :----: | :-----------------------: |
-|           S*o            |  1  | 2025.8.05 |   支持一下        |
-|           *侠            |  10  | 2025.8.04 |           |
-|           x*x            |  2  | 2025.8.03 |  trendRadar 好项目 点赞          |
-|           *远            |  1  | 2025.8.01 |            |
-|           *邪            |  5  | 2025.8.01 |            |
-|           *梦            |  0.1  | 2025.7.30 |            |
-|           **龙            |  10  | 2025.7.29 |      支持一下      |
-
 <details>
 <summary><strong>👉 微信推送通知的折中方案</strong></summary>
 <br>
@@ -662,18 +695,6 @@ platforms:
 - 配置好后，手机上的企业微信 app 删除掉也没事
 
 <img src="_image/wework.png"  title="github"/>
-
-</details>
-
-
-<details>
-<summary><strong>👉 "手机推送通知系列"之新项目挖坑预告</strong></summary>
-<br>
-我很豪横地拿诸位的点赞，买了一瓶 15.5 元的柠檬汁
-
-截图中只支持一个渠道，我想顺便扩展功能，比如某些项目的更新监控，大家有什么好的建议可以公众号留言，完善后开源
-
-<img src="_image/next.jpg" width="300" title="github"/>
 
 </details>
 
@@ -723,9 +744,6 @@ flowchart TD
 
 [![Star History Chart](https://api.star-history.com/svg?repos=sansan0/TrendRadar&type=Date)](https://www.star-history.com/#sansan0/TrendRadar&Date)
 
-## 🙏 致谢
-
-本项目使用了 [newsnow](https://github.com/ourongxing/newsnow) 提供的 API 服务，感谢其提供的数据支持。
 
 ## 📄 许可证
 
