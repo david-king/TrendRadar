@@ -73,3 +73,21 @@ platforms:
     name: "知乎"
   - id: "xueqiu"
     name: "雪球"
+
+# === 可选：高级匹配增强（保留原有 + / ! 语法基础上再加能力）===
+match:
+  normalize:
+    opencc: true    # 简繁统一
+    nfkc: true      # 全/半角归一
+  fuzzy:
+    enabled: true
+    threshold: 90
+  regex_enabled: true
+
+# === 可选：AI 分析（若你已接好分析函数）===
+ai:
+  enabled: true
+  provider: "openai"
+  model: "gpt-4o-mini"
+  max_tokens: 800
+  temperature: 0.2

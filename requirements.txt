@@ -1,3 +1,12 @@
 requests==2.32.4
 pytz==2025.2
 PyYAML==6.0.2
+
+# 自定义数据源（REST / RSS / HTML）
+httpx
+jsonpath-ng
+feedparser
+beautifulsoup4
+python-dateutil
+rapidfuzz
+opencc-python-reimplemented   # 可选：需要中文简繁统一时启用

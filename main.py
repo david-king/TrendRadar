@@ -44,36 +44,28 @@ def load_config():
         "ENABLE_NOTIFICATION": config_data["notification"]["enable_notification"],
         "MESSAGE_BATCH_SIZE": config_data["notification"]["message_batch_size"],
         "BATCH_SEND_INTERVAL": config_data["notification"]["batch_send_interval"],
-        "FEISHU_MESSAGE_SEPARATOR": config_data["notification"][
-            "feishu_message_separator"
-        ],
+        "FEISHU_MESSAGE_SEPARATOR": config_data["notification"]["feishu_message_separator"],
         "WEIGHT_CONFIG": {
             "RANK_WEIGHT": config_data["weight"]["rank_weight"],
             "FREQUENCY_WEIGHT": config_data["weight"]["frequency_weight"],
             "HOTNESS_WEIGHT": config_data["weight"]["hotness_weight"],
         },
         "PLATFORMS": config_data["platforms"],
+        
+        "CUSTOM_SOURCES": config_data.get("custom_sources", []),
+        "MATCH":          config_data.get("match", {}),
+        "AI":             config_data.get("ai", {}),
     }
 
     # Webhook配置（环境变量优先）
     notification = config_data.get("notification", {})
     webhooks = notification.get("webhooks", {})
 
-    config["FEISHU_WEBHOOK_URL"] = os.environ.get(
-        "FEISHU_WEBHOOK_URL", ""
-    ).strip() or webhooks.get("feishu_url", "")
-    config["DINGTALK_WEBHOOK_URL"] = os.environ.get(
-        "DINGTALK_WEBHOOK_URL", ""
-    ).strip() or webhooks.get("dingtalk_url", "")
-    config["WEWORK_WEBHOOK_URL"] = os.environ.get(
-        "WEWORK_WEBHOOK_URL", ""
-    ).strip() or webhooks.get("wework_url", "")
-    config["TELEGRAM_BOT_TOKEN"] = os.environ.get(
-        "TELEGRAM_BOT_TOKEN", ""
-    ).strip() or webhooks.get("telegram_bot_token", "")
-    config["TELEGRAM_CHAT_ID"] = os.environ.get(
-        "TELEGRAM_CHAT_ID", ""
-    ).strip() or webhooks.get("telegram_chat_id", "")
+    config["FEISHU_WEBHOOK_URL"] = os.environ.get("FEISHU_WEBHOOK_URL", "").strip() or webhooks.get("feishu_url", "")
+    config["DINGTALK_WEBHOOK_URL"] = os.environ.get("DINGTALK_WEBHOOK_URL", "").strip() or webhooks.get("dingtalk_url", "")
+    config["WEWORK_WEBHOOK_URL"] = os.environ.get("WEWORK_WEBHOOK_URL", "").strip() or webhooks.get("wework_url", "")
+    config["TELEGRAM_BOT_TOKEN"] = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip() or webhooks.get("telegram_bot_token", "")
+    config["TELEGRAM_CHAT_ID"] = os.environ.get("TELEGRAM_CHAT_ID", "").strip() or webhooks.get("telegram_chat_id", "")
 
     # 输出配置来源信息
     webhook_sources = []
@@ -901,6 +893,15 @@ def count_word_frequency(
     if new_titles is None:
         new_titles = {}
 
+    # 高级匹配（独立文件）
+    try:
+        from matcher import decide_match, load_match_config
+    except Exception:
+        decide_match = None
+        load_match_config = None
+    
+    MATCH_CFG = load_match_config(CONFIG) if load_match_config else {}
+
     for group in word_groups:
         group_key = group["group_key"]
         word_stats[group_key] = {"count": 0, "titles": {}}
@@ -914,11 +915,19 @@ def count_word_frequency(
         for title, title_data in titles_data.items():
             if title in processed_titles.get(source_id, {}):
                 continue
-
-            # 使用统一的匹配逻辑
-            matches_frequency_words = matches_word_groups(
-                title, word_groups, filter_words
-            )
+            
+            # 使用高级匹配：任意一个词组命中即可（“全部新闻”特殊处理）
+            if decide_match:
+                if len(word_groups) == 1 and word_groups[0]["group_key"] == "全部新闻":
+                    matches_frequency_words = True
+                else:
+                    matches_frequency_words = any(
+                        decide_match(title, g["normal"], g["required"], filter_words, MATCH_CFG)
+                        for g in word_groups
+                    )
+            else:
+                # 使用统一的匹配逻辑
+                matches_frequency_words = matches_word_groups(title, word_groups, filter_words)
 
             if not matches_frequency_words:
                 continue
@@ -946,22 +955,22 @@ def count_word_frequency(
                     if source_id not in word_stats[group_key]["titles"]:
                         word_stats[group_key]["titles"][source_id] = []
                 else:
-                    # 原有的匹配逻辑
-                    if required_words:
-                        all_required_present = all(
-                            req_word.lower() in title_lower
-                            for req_word in required_words
-                        )
-                        if not all_required_present:
+                    # 原有的匹配逻辑 → 改为高级匹配（保留“全部新闻”分支不变）
+                    if decide_match:
+                        is_group_hit = decide_match(title, normal_words, required_words, filter_words, MATCH_CFG)
+                        if not is_group_hit:
                             continue
-
-                    if normal_words:
-                        any_normal_present = any(
-                            normal_word.lower() in title_lower
-                            for normal_word in normal_words
-                        )
-                        if not any_normal_present:
-                            continue
+                    else:
+                        # 兜底：保留你之前的基础包含判断
+                        # 原有的匹配逻辑
+                        if required_words:
+                            all_required_present = all(req_word.lower() in title_lower for req_word in required_words)
+                            if not all_required_present:
+                                continue
+                        if normal_words:
+                            any_normal_present = any(normal_word.lower() in title_lower for normal_word in normal_words)
+                            if not any_normal_present:
+                                continue
 
                     group_key = group["group_key"]
                     word_stats[group_key]["count"] += 1
@@ -1870,7 +1879,7 @@ def render_html_content(
                     if min_rank <= 3:
                         rank_class = "top"
                     elif min_rank <= rank_threshold:
-                        rank_class = "high" 
+                        rank_class = "high"
                     else:
                         rank_class = ""
                     
@@ -3161,6 +3170,30 @@ class NewsAnalyzer:
         results, id_to_name, failed_ids = self.data_fetcher.crawl_websites(
             ids, self.request_interval
         )
+
+        try:
+            try:
+                from sources import fetch_custom_all_sync, custom_to_results
+            except Exception:
+                fetch_custom_all_sync = None
+                custom_to_results = None
+
+            if fetch_custom_all_sync and custom_to_results:
+                custom_list = fetch_custom_all_sync(CONFIG)  # List[dict]: {title,url,ts,rank,source,source_key,id}
+                c_results, c_id_to_name = custom_to_results(custom_list)
+                # 合并为同一结果集
+                for sid, title_map in c_results.items():
+                    if sid not in results:
+                        results[sid] = title_map
+                    else:
+                        # 不覆盖已存在标题，避免误伤内置结果
+                        for t, v in title_map.items():
+                            results[sid].setdefault(t, v)
+                id_to_name.update(c_id_to_name)
+            
+                print(f"[custom] merged sources={len(c_results)} items={sum(len(x) for x in c_results.values())}")
+        except Exception as e:
+            print(f"合并自定义数据失败：{e}")
 
         title_file = save_titles_to_file(results, id_to_name, failed_ids)
         print(f"标题已保存到: {title_file}")

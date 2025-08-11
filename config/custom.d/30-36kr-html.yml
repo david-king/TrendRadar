@@ -1,0 +1,7 @@
+custom_sources:
+  - type: html
+    key: 36kr-html
+    name: 36氪HTML
+    endpoint: https://36kr.com/information/web_news
+    html:
+      item: "a.article-item-title"

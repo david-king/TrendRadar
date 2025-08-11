@@ -1,0 +1,5 @@
+custom_sources:
+  - type: rss
+    key: hackernews-rss
+    name: Hacker News
+    endpoint: https://news.ycombinator.com/rss

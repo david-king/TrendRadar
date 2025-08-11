@@ -1,0 +1,12 @@
+custom_sources:
+  - type: rest
+    key: oschina-rest
+    name: 开源中国REST
+    endpoint: https://www.oschina.net/action/ajax/get_news_list
+    params:
+      newsType: project
+    extract:
+      list: "$.newslist[*]"
+      title: "$.title"
+      url: "$.url"
+      ts: "$.pubDate"
